@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Julian</title>
+    <style>
+        /* Modern Font & Reset */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #6c757d;
+            --background-color: #ffffff;
+            --card-background: #f8f9fa;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            animation: fadeInPage 1s ease-in-out;
+        }
+
+        /* Animations */
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            80% { opacity: 1; transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        /* Loading Spinner */
+        #loader {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+        }
+
+        /* Journal List */
+        #journal-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .journal-item {
+            display: flex;
+            align-items: flex-start;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: popIn 0.5s ease-out forwards;
+            opacity: 0; /* Start hidden for animation */
+        }
+
+        .journal-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .journal-item.done .job-text {
+            text-decoration: line-through;
+            color: var(--secondary-color);
+        }
+
+        .checkbox-container {
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox {
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: inline-block;
+            position: relative;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .custom-checkbox:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 2px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+        }
+
+        .content {
+            flex-grow: 1;
+        }
+
+        .date {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .job-text {
+            white-space: pre-wrap; /* To respect newlines from spreadsheet */
+            font-size: 1rem;
+            word-break: break-word;
+        }
+
+        /* Form Section */
+        .form-toggle-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        #journal-form-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.5s ease;
+            padding: 0;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+        }
+        
+        #journal-form-container.open {
+             max-height: 1000px; /* Large enough for content */
+             padding: 2rem;
+             border: 1px solid var(--border-color);
+             box-shadow: var(--shadow);
+        }
+        
+        #journal-form h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        
+        .submit-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Jurnal Julian</h1>
+        </header>
+
+        <main>
+            <div id="loader">Memuat jurnal...</div>
+            <ul id="journal-list"></ul>
+
+            <div class="form-toggle-container">
+                <button id="toggle-form-btn" class="btn">Tulis Jurnal Baru</button>
+            </div>
+
+            <div id="journal-form-container">
+                <form id="journal-form">
+                    <h3>Apa yang kamu kerjakan hari ini?</h3>
+                    <div class="input-grid">
+                        <input type="text" class="form-input" placeholder="Aktivitas 1...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 2...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 3...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 4...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 5...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 6...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 7...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 8...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 9...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 10...">
+                    </div>
+                    <div class="submit-container">
+                        <button type="submit" id="submit-btn" class="btn">Tulis Jurnal</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ======================================================================================
+        // !!! PENTING: GANTI URL DI BAWAH INI DENGAN URL WEB APP ANDA DARI GOOGLE APPS SCRIPT !!!
+        // ======================================================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytsn5h9PlSd-GzJZh93aa3F2CR09RT21TA_1b6JnO8M8fmEOQ09FAd7FfbcW1MxlOtVg/exec";
+
+        const loader = document.getElementById('loader');
+        const journalList = document.getElementById('journal-list');
+        const formContainer = document.getElementById('journal-form-container');
+        const toggleFormBtn = document.getElementById('toggle-form-btn');
+        const journalForm = document.getElementById('journal-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Fungsi untuk mengambil data dari Google Sheet
+        async function fetchJournalData() {
+            try {
+                const response = await fetch(SCRIPT_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                
+                loader.style.display = 'none';
+                displayJournals(result.data);
+            } catch (error) {
+                loader.textContent = 'Gagal memuat data. Coba refresh halaman.';
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Fungsi untuk menampilkan data ke halaman
+        function displayJournals(journals) {
+            journalList.innerHTML = ''; // Kosongkan list sebelum diisi
+            if (!journals || journals.length === 0) {
+                 journalList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Belum ada jurnal.</p>';
+                 return;
+            }
+            
+            journals.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'journal-item';
+                // Tambahkan delay animasi untuk setiap item
+                li.style.animationDelay = `${index * 0.1}s`;
+                if (item.done) {
+                    li.classList.add('done');
+                }
+
+                const formattedDate = new Date(item.date).toLocaleDateString('id-ID', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+
+                li.innerHTML = `
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="check-${item.row}" class="custom-checkbox" data-row="${item.row}" ${item.done ? 'checked' : ''}>
+                    </div>
+                    <div class="content">
+                        <div class="date">${formattedDate}</div>
+                        <p class="job-text">${item.job}</p>
+                    </div>
+                `;
+                journalList.appendChild(li);
+            });
+            
+            // Tambahkan event listener untuk setiap checkbox yang baru dibuat
+            document.querySelectorAll('.custom-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', handleCheckboxChange);
+            });
+        }
+
+        // Fungsi untuk menangani update checkbox
+        async function handleCheckboxChange(event) {
+            const checkbox = event.target;
+            const row = checkbox.dataset.row;
+            const isDone = checkbox.checked;
+
+            checkbox.disabled = true; // Nonaktifkan sementara
+            checkbox.closest('.journal-item').classList.toggle('done', isDone);
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Diperlukan karena Apps Script redirect
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'updateCheck', row: parseInt(row), isDone: isDone })
+                });
+                // Karena 'no-cors' kita tidak bisa membaca response, jadi kita asumsikan berhasil.
+                console.log('Update successful (assumed)');
+            } catch (error) {
+                console.error('Error updating checkbox:', error);
+                // Kembalikan ke state semula jika gagal
+                checkbox.checked = !isDone;
+                checkbox.closest('.journal-item').classList.toggle('done', !isDone);
+                alert('Gagal mengupdate status.');
+            } finally {
+                checkbox.disabled = false; // Aktifkan kembali
+            }
+        }
+        
+        // Fungsi untuk menangani pengiriman form
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
+
+            const inputs = journalForm.querySelectorAll('.form-input');
+            const jobs = Array.from(inputs).map(input => input.value);
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'addJournal', jobs: jobs })
+                });
+                // Berhasil, refresh data
+                journalForm.reset();
+                toggleForm(); // Tutup form
+                loader.style.display = 'block';
+                journalList.innerHTML = '';
+                await fetchJournalData();
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('Gagal menyimpan jurnal.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Tulis Jurnal';
+            }
+        }
+        
+        // Fungsi untuk membuka/menutup form
+        function toggleForm() {
+            formContainer.classList.toggle('open');
+            if (formContainer.classList.contains('open')) {
+                toggleFormBtn.textContent = 'Tutup Form';
+            } else {
+                toggleFormBtn.textContent = 'Tulis Jurnal Baru';
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', fetchJournalData);
+        toggleFormBtn.addEventListener('click', toggleForm);
+        journalForm.addEventListener('submit', handleFormSubmit);
+
+    </script>
+</body>
+</html>
