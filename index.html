@@ -34,24 +34,6 @@
             display: flex;
             justify-content: center;
             padding: 2rem;
-            animation: fadeInPage 1s ease-in-out;
-        }
-
-        /* Animations */
-        @keyframes fadeInPage {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.8); }
-            80% { opacity: 1; transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
 
         .container {
@@ -63,7 +45,6 @@
         header {
             text-align: center;
             margin-bottom: 2.5rem;
-            animation: slideInUp 0.8s ease-out;
         }
 
         header h1 {
@@ -95,13 +76,9 @@
             margin-bottom: 1rem;
             padding: 1.5rem;
             box-shadow: var(--shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: popIn 0.5s ease-out forwards;
-            opacity: 0; /* Start hidden for animation */
         }
 
         .journal-item:hover {
-            transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
         
@@ -123,7 +100,6 @@
             border-radius: 6px;
             display: inline-block;
             position: relative;
-            transition: background-color 0.2s, border-color 0.2s;
         }
 
         .custom-checkbox:checked {
@@ -155,7 +131,7 @@
         }
 
         .job-text {
-            white-space: pre-wrap; /* To respect newlines from spreadsheet */
+            white-space: pre-wrap;
             font-size: 1rem;
             word-break: break-word;
         }
@@ -175,28 +151,25 @@
             font-weight: 500;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
         }
 
         .btn:hover {
             background-color: #0056b3;
-            transform: translateY(-2px);
         }
 
         #journal-form-container {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.5s ease;
             padding: 0;
             background: var(--card-background);
             border-radius: var(--border-radius);
         }
         
         #journal-form-container.open {
-             max-height: 1000px; /* Large enough for content */
-             padding: 2rem;
-             border: 1px solid var(--border-color);
-             box-shadow: var(--shadow);
+            max-height: 1000px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
         }
         
         #journal-form h3 {
@@ -219,7 +192,6 @@
             border-radius: 8px;
             font-size: 1rem;
             font-family: 'Inter', sans-serif;
-            transition: border-color 0.3s, box-shadow 0.3s;
         }
         
         .form-input:focus {
@@ -303,15 +275,13 @@
         function displayJournals(journals) {
             journalList.innerHTML = ''; // Kosongkan list sebelum diisi
             if (!journals || journals.length === 0) {
-                 journalList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Belum ada jurnal.</p>';
-                 return;
+                journalList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Belum ada jurnal.</p>';
+                return;
             }
             
             journals.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.className = 'journal-item';
-                // Tambahkan delay animasi untuk setiap item
-                li.style.animationDelay = `${index * 0.1}s`;
                 if (item.done) {
                     li.classList.add('done');
                 }
@@ -354,16 +324,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'updateCheck', row: parseInt(row), isDone: isDone })
                 });
-                // Karena 'no-cors' kita tidak bisa membaca response, jadi kita asumsikan berhasil.
                 console.log('Update successful (assumed)');
             } catch (error) {
                 console.error('Error updating checkbox:', error);
-                // Kembalikan ke state semula jika gagal
                 checkbox.checked = !isDone;
                 checkbox.closest('.journal-item').classList.toggle('done', !isDone);
                 alert('Gagal mengupdate status.');
             } finally {
-                checkbox.disabled = false; // Aktifkan kembali
+                checkbox.disabled = false;
             }
         }
         
@@ -383,9 +351,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'addJournal', jobs: jobs })
                 });
-                // Berhasil, refresh data
                 journalForm.reset();
-                toggleForm(); // Tutup form
+                toggleForm();
                 loader.style.display = 'block';
                 journalList.innerHTML = '';
                 await fetchJournalData();
@@ -402,19 +369,17 @@
         // Fungsi untuk membuka/menutup form
         function toggleForm() {
             formContainer.classList.toggle('open');
-            const inputs = journalForm.querySelectorAll('.form-input'); // Pilih semua kolom input
+            const inputs = journalForm.querySelectorAll('.form-input');
         
             if (formContainer.classList.contains('open')) {
-                // Saat form TERBUKA
                 toggleFormBtn.textContent = 'Tutup Form';
-                inputs.forEach(input => input.disabled = false); // AKTIFKAN semua input
+                inputs.forEach(input => input.disabled = false);
                 if (inputs.length > 0) {
-                    inputs[0].focus(); // Bonus: Langsung fokus ke input pertama
+                    inputs[0].focus();
                 }
             } else {
-                // Saat form TERTUTUP
                 toggleFormBtn.textContent = 'Tulis Jurnal Baru';
-                inputs.forEach(input => input.disabled = true); // NONAKTIFKAN semua input
+                inputs.forEach(input => input.disabled = true);
             }
         }
 
@@ -422,8 +387,9 @@
         document.addEventListener('DOMContentLoaded', fetchJournalData);
         toggleFormBtn.addEventListener('click', toggleForm);
         journalForm.addEventListener('submit', handleFormSubmit);
-        document.querySelectorAll('#journal-form .form-input').forEach(input => input.disabled = true);
 
+        // Nonaktifkan input form saat halaman pertama kali dimuat
+        document.querySelectorAll('#journal-form .form-input').forEach(input => input.disabled = true);
     </script>
 </body>
 </html>
