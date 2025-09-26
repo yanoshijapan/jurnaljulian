@@ -222,8 +222,12 @@
 
             <div id="journal-form-container">
                 <form id="journal-form">
-                    <h3>Apa yang kamu kerjakan hari ini?</h3>
-                    <div class="input-grid">
+                    <h3>Apa yang kamu kerjakan besok?</h3>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="journal-date" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tanggal Jurnal:</label>
+                        <input type="date" id="journal-date" class="form-input" required>
+                    </div>
+                        <div class="input-grid">
                         <input type="text" class="form-input" placeholder="Aktivitas 1...">
                         <input type="text" class="form-input" placeholder="Aktivitas 2...">
                         <input type="text" class="form-input" placeholder="Aktivitas 3...">
@@ -338,9 +342,17 @@
         // Fungsi untuk menangani pengiriman form
         async function handleFormSubmit(event) {
             event.preventDefault();
+        
+            // Ambil nilai tanggal dari input baru
+            const journalDate = document.getElementById('journal-date').value;
+            if (!journalDate) {
+                alert('Silakan pilih tanggal terlebih dahulu.');
+                return;
+            }
+        
             submitBtn.disabled = true;
             submitBtn.textContent = 'Menyimpan...';
-
+        
             const inputs = journalForm.querySelectorAll('.form-input');
             const jobs = Array.from(inputs).map(input => input.value);
             
@@ -349,14 +361,20 @@
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'addJournal', jobs: jobs })
+                    // Kirim tanggal bersama dengan daftar pekerjaan
+                    body: JSON.stringify({ 
+                        action: 'addJournal', 
+                        date: journalDate, // Data tanggal baru
+                        jobs: jobs 
+                    })
                 });
+                
+                // Berhasil, refresh data
                 journalForm.reset();
-                toggleForm();
                 loader.style.display = 'block';
                 journalList.innerHTML = '';
                 await fetchJournalData();
-
+        
             } catch (error) {
                 console.error('Error submitting form:', error);
                 alert('Gagal menyimpan jurnal.');
