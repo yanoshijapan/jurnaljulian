@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jurnal Julian</title>
     <style>
-        /* ... SEMUA CSS ANDA ADA DI SINI ... */
+        /* Semua CSS Anda sebelumnya tetap sama... */
         :root {
             --primary-color: #3D52A0;
             --secondary-color: #6c757d;
@@ -92,7 +92,8 @@
             100% { transform: scale(1) rotate(45deg); opacity: 1; }
         }
         .content { flex-grow: 1; }
-        .job-text { white-space: pre-wrap; font-size: 1rem; word-break: break-word; } /* date class dihapus */
+        .date { font-size: 0.85rem; color: var(--secondary-color); margin-bottom: 0.5rem; font-weight: 500; }
+        .job-text { white-space: pre-wrap; font-size: 1rem; word-break: break-word; }
         .btn {
             background-color: var(--primary-color);
             color: white;
@@ -114,20 +115,25 @@
             margin-top: 2rem;
         }
         #journal-form h3 { text-align: center; margin-bottom: 1.5rem; font-weight: 500; }
+        
+        /* DIUBAH: Pengaturan untuk menyembunyikan grid aktivitas */
         #activities-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
-            margin-top: 1.5rem;
+            margin-top: 1.5rem; /* Memberi jarak dari tombol */
             max-height: 0;
             opacity: 0;
             overflow: hidden;
             transition: max-height 0.7s ease, opacity 0.5s ease, margin-top 0.7s ease;
         }
+        
+        /* BARU: Kelas untuk menampilkan grid aktivitas */
         #activities-grid.visible {
-            max-height: 1000px;
+            max-height: 1000px; /* Cukup besar untuk menampung 10 input */
             opacity: 1;
         }
+
         .form-input {
             width: 100%;
             padding: 0.8rem 1rem;
@@ -152,9 +158,13 @@
             <div id="journal-form-container">
                 <form id="journal-form">
                     <h3>Apa yang kamu kerjakan hari ini?</h3>
-                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="journal-date" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tanggal Jurnal:</label>
+                        <input type="date" id="journal-date" class="form-input" required>
+                    </div>
+
                     <div style="text-align: center;">
-                         <button type="button" id="toggle-activities-btn" class="btn">Buat Jurnal Baru</button>
+                         <button type="button" id="toggle-activities-btn" class="btn">Buat Jurnal Besok</button>
                     </div>
 
                     <div class="input-grid" id="activities-grid">
@@ -185,17 +195,36 @@
         const journalList = document.getElementById('journal-list');
         const journalForm = document.getElementById('journal-form');
         const submitBtn = document.getElementById('submit-btn');
+
+        // BARU: Deklarasi variabel untuk tombol dan grid baru
         const toggleActivitiesBtn = document.getElementById('toggle-activities-btn');
         const activitiesGrid = document.getElementById('activities-grid');
+
+        // Fungsi displayJournals, handleCheckboxChange, dll. tetap sama
+        function displayJournals(journals) { /* ... kode Anda di sini ... */ }
+        async function handleCheckboxChange(event) { /* ... kode Anda di sini ... */ }
+        async function fetchJournalData() { /* ... kode Anda di sini ... */ }
+        async function handleFormSubmit(event) { /* ... kode Anda di sini ... */ }
+
+
+        // =======================================================================
+        // KODE JAVASCRIPT LENGKAP ADA DI BAWAH INI UNTUK MENGGANTIKAN SEMUA FUNGSI LAMA
+        // =======================================================================
         
-        document.addEventListener('DOMContentLoaded', fetchJournalData);
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('journal-date').valueAsDate = new Date();
+            fetchJournalData();
+        });
+        
         journalForm.addEventListener('submit', handleFormSubmit);
+
+        // BARU: Event listener untuk tombol "Buat Jurnal Besok"
         toggleActivitiesBtn.addEventListener('click', () => {
             activitiesGrid.classList.toggle('visible');
             if (activitiesGrid.classList.contains('visible')) {
                 toggleActivitiesBtn.textContent = 'Sembunyikan Aktivitas';
             } else {
-                toggleActivitiesBtn.textContent = 'Buat Jurnal Baru';
+                toggleActivitiesBtn.textContent = 'Buat Jurnal Besok';
             }
         });
         
@@ -212,7 +241,6 @@
             }
         }
 
-        // DIUBAH: Fungsi displayJournals tidak lagi menampilkan tanggal
         function displayJournals(journals) {
             journalList.innerHTML = '';
             if (!journals || journals.length === 0) {
@@ -228,6 +256,7 @@
                         <input type="checkbox" id="check-${item.row}" class="custom-checkbox" data-row="${item.row}" ${item.done ? 'checked' : ''}>
                     </div>
                     <div class="content">
+                        <div class="date">${new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                         <p class="job-text">${item.job}</p>
                     </div>
                 `;
@@ -239,7 +268,7 @@
             });
         }
 
-        async function handleCheckboxChange(event) { /* ...Fungsi ini tetap sama... */
+        async function handleCheckboxChange(event) {
             const checkbox = event.target;
             const row = checkbox.dataset.row;
             const isDone = checkbox.checked;
@@ -247,7 +276,8 @@
             checkbox.closest('.journal-item').classList.toggle('done', isDone);
             try {
                 await fetch(SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors',
+                    method: 'POST',
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'updateCheck', row: parseInt(row), isDone: isDone })
                 });
@@ -261,10 +291,13 @@
             }
         }
 
-        // DIUBAH: Fungsi handleFormSubmit tidak lagi mengirim tanggal
         async function handleFormSubmit(event) {
             event.preventDefault();
-            
+            const journalDate = document.getElementById('journal-date').value;
+            if (!journalDate) {
+                alert('Silakan pilih tanggal terlebih dahulu.');
+                return;
+            }
             submitBtn.disabled = true;
             submitBtn.textContent = 'Menyimpan...';
             const inputs = activitiesGrid.querySelectorAll('.form-input');
@@ -277,13 +310,15 @@
             }
             try {
                 await fetch(SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors',
+                    method: 'POST',
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'addJournal', jobs: jobs }) // Hanya mengirim 'jobs'
+                    body: JSON.stringify({ action: 'addJournal', date: journalDate, jobs: jobs })
                 });
                 journalForm.reset();
-                activitiesGrid.classList.remove('visible');
-                toggleActivitiesBtn.textContent = 'Buat Jurnal Baru';
+                document.getElementById('journal-date').valueAsDate = new Date();
+                activitiesGrid.classList.remove('visible'); // Sembunyikan lagi setelah submit
+                toggleActivitiesBtn.textContent = 'Buat Jurnal Besok';
                 await fetchJournalData();
             } catch (error) {
                 console.error('Error submitting form:', error);
