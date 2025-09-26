@@ -402,10 +402,19 @@
         // Fungsi untuk membuka/menutup form
         function toggleForm() {
             formContainer.classList.toggle('open');
+            const inputs = journalForm.querySelectorAll('.form-input'); // Pilih semua kolom input
+        
             if (formContainer.classList.contains('open')) {
+                // Saat form TERBUKA
                 toggleFormBtn.textContent = 'Tutup Form';
+                inputs.forEach(input => input.disabled = false); // AKTIFKAN semua input
+                if (inputs.length > 0) {
+                    inputs[0].focus(); // Bonus: Langsung fokus ke input pertama
+                }
             } else {
+                // Saat form TERTUTUP
                 toggleFormBtn.textContent = 'Tulis Jurnal Baru';
+                inputs.forEach(input => input.disabled = true); // NONAKTIFKAN semua input
             }
         }
 
