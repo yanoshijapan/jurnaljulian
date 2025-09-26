@@ -422,6 +422,7 @@
         document.addEventListener('DOMContentLoaded', fetchJournalData);
         toggleFormBtn.addEventListener('click', toggleForm);
         journalForm.addEventListener('submit', handleFormSubmit);
+        document.querySelectorAll('#journal-form .form-input').forEach(input => input.disabled = true);
 
     </script>
 </body>
