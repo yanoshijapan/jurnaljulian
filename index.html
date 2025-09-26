@@ -184,19 +184,12 @@
         }
 
         #journal-form-container {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), padding 0.5s ease;
-            padding: 0;
+            padding: 2rem;
             background: var(--card-background);
             border-radius: var(--border-radius);
-        }
-        
-        #journal-form-container.open {
-             max-height: 1000px; /* Large enough for content */
-             padding: 2rem;
-             border: 1px solid var(--border-color);
-             box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            margin-top: 2rem; /* Menambah jarak dari daftar jurnal */
         }
         
         #journal-form h3 {
@@ -244,9 +237,7 @@
             <div id="loader">Memuat jurnal...</div>
             <ul id="journal-list"></ul>
 
-            <div class="form-toggle-container">
-                <button type="button" id="toggle-form-btn" class="btn">Tulis Jurnal Baru</button>
-            </div>
+            
 
             <div id="journal-form-container">
                 <form id="journal-form">
@@ -280,7 +271,7 @@
         const loader = document.getElementById('loader');
         const journalList = document.getElementById('journal-list');
         const formContainer = document.getElementById('journal-form-container');
-        const toggleFormBtn = document.getElementById('toggle-form-btn');
+        
         const journalForm = document.getElementById('journal-form');
         const submitBtn = document.getElementById('submit-btn');
 
@@ -385,7 +376,7 @@
                 });
                 // Berhasil, refresh data
                 journalForm.reset();
-                toggleForm(); // Tutup form
+            
                 loader.style.display = 'block';
                 journalList.innerHTML = '';
                 await fetchJournalData();
@@ -420,7 +411,7 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', fetchJournalData);
-        toggleFormBtn.addEventListener('click', toggleForm);
+      
         journalForm.addEventListener('submit', handleFormSubmit);
 
     </script>
