@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jurnal Julian</title>
     <style>
-        /* ... Semua CSS Anda sebelumnya tetap sama ... */
         :root {
             --primary-color: #3D52A0;
             --secondary-color: #6c757d;
@@ -38,7 +37,7 @@
             from { opacity: 0; transform: translateY(-100%); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .container { width: 100%; max-width: 800px; padding-top: 100px; /* Ruang untuk header */ }
+        .container { width: 100%; max-width: 800px; padding-top: 100px; }
         header {
             position: fixed;
             top: 0;
@@ -145,7 +144,7 @@
             transition: max-height 0.7s ease, opacity 0.5s ease, margin-top 0.7s ease;
         }
         #activities-grid.visible {
-            max-height: 1000px;
+            max-height: 1200px; /* Ditambah agar muat lebih banyak */
             opacity: 1;
         }
         .form-input {
@@ -159,8 +158,6 @@
         }
         .form-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(61, 82, 160, 0.25); }
         .submit-container { text-align: center; margin-top: 1.5rem; }
-
-        /* BARU: CSS untuk Form Jurnal Default */
         #defaults-section {
             margin-top: 1.5rem;
             border-top: 1px solid var(--border-color);
@@ -175,14 +172,53 @@
             margin-top: 0;
         }
         #defaults-container.visible {
-            max-height: 1000px;
+            max-height: 1200px; /* Ditambah agar muat lebih banyak */
             opacity: 1;
             margin-top: 1.5rem;
         }
-        
-        .modal-overlay { /* ...CSS Modal Anda... */ }
-        .modal-content { /* ...CSS Modal Anda... */ }
-        .history-item { /* ...CSS Modal Anda... */ }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-content h2 { margin-bottom: 1.5rem; text-align: center; }
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+        #history-list { list-style: none; }
+        .history-item { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+        .history-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -278,6 +314,7 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgHYMW7xI1xePk53KBV3a6WkIjGSryhpo7Sg8Fdwycc9olPyNWTV7e0cs4FNHGxFwUzg/exec";
+
         const loader = document.getElementById('loader');
         const journalList = document.getElementById('journal-list');
         const journalForm = document.getElementById('journal-form');
@@ -288,23 +325,18 @@
         const historyModal = document.getElementById('history-modal');
         const modalCloseBtn = document.getElementById('modal-close-btn');
         const historyList = document.getElementById('history-list');
-
-        // BARU: Deklarasi variabel untuk elemen default
         const toggleDefaultsBtn = document.getElementById('toggle-defaults-btn');
         const defaultsContainer = document.getElementById('defaults-container');
         const saveDefaultsBtn = document.getElementById('save-defaults-btn');
 
-        // =======================================================================
-        // KODE JAVASCRIPT LENGKAP ADA DI BAWAH INI UNTUK MENGGANTIKAN SEMUA FUNGSI LAMA
-        // =======================================================================
-        
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('journal-date').valueAsDate = new Date();
-            loadDefaults(); // Panggil fungsi baru untuk memuat default
+            loadDefaults();
             fetchJournalData();
         });
         
         journalForm.addEventListener('submit', handleFormSubmit);
+
         toggleActivitiesBtn.addEventListener('click', () => {
             activitiesGrid.classList.toggle('visible');
             if (activitiesGrid.classList.contains('visible')) {
@@ -320,7 +352,6 @@
             if (event.target === historyModal) historyModal.classList.remove('visible');
         });
 
-        // BARU: Event listener untuk tombol default
         toggleDefaultsBtn.addEventListener('click', () => {
             defaultsContainer.classList.toggle('visible');
         });
@@ -328,42 +359,144 @@
         saveDefaultsBtn.addEventListener('click', () => {
             const defaultInputs = defaultsContainer.querySelectorAll('.default-input');
             const defaultTexts = Array.from(defaultInputs).map(input => input.value);
-            
             localStorage.setItem('defaultJournal', JSON.stringify(defaultTexts));
             alert('Default jurnal berhasil disimpan!');
-            defaultsContainer.classList.remove('visible'); // Otomatis tutup setelah simpan
+            defaultsContainer.classList.remove('visible');
         });
 
-        // BARU: Fungsi untuk memuat dan mengisi data default
         function loadDefaults() {
             const savedDefaults = localStorage.getItem('defaultJournal');
             if (savedDefaults) {
                 const defaultTexts = JSON.parse(savedDefaults);
-                
-                // Isi kolom aktivitas utama
                 const mainInputs = activitiesGrid.querySelectorAll('.form-input');
                 mainInputs.forEach((input, index) => {
-                    if (defaultTexts[index]) {
-                        input.value = defaultTexts[index];
-                    }
+                    if (defaultTexts[index]) input.value = defaultTexts[index];
                 });
-
-                // Isi juga kolom di form default untuk diedit
                 const defaultInputs = defaultsContainer.querySelectorAll('.default-input');
                 defaultInputs.forEach((input, index) => {
-                     if (defaultTexts[index]) {
-                        input.value = defaultTexts[index];
-                    }
+                     if (defaultTexts[index]) input.value = defaultTexts[index];
                 });
             }
         }
         
-        // ... (Fungsi-fungsi lama Anda seperti fetchJournalData, displayJournals, dll. tetap di sini tanpa perubahan)
-        async function fetchJournalData() { /* ... kode Anda di sini ... */ }
-        function displayJournals(journals) { /* ... kode Anda di sini ... */ }
-        async function handleCheckboxChange(event) { /* ... kode Anda di sini ... */ }
-        async function handleFormSubmit(event) { /* ... kode Anda di sini ... */ }
+        async function fetchJournalData() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?v=${new Date().getTime()}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                loader.style.display = 'none';
+                displayJournals(result.data);
+            } catch (error) {
+                loader.textContent = 'Gagal memuat data. Coba refresh halaman.';
+                console.error('Error fetching data:', error);
+            }
+        }
 
+        function displayJournals(journals) {
+            journalList.innerHTML = '';
+            historyList.innerHTML = '';
+            if (!journals || journals.length === 0) {
+                journalList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Belum ada jurnal.</p>';
+                historyList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Riwayat kosong.</p>';
+                return;
+            }
+            const activeJournals = journals.filter(item => !item.done);
+            const completedJournals = journals.filter(item => item.done);
+            if (activeJournals.length > 0) {
+                activeJournals.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'journal-item';
+                    li.innerHTML = `
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="check-${item.row}" class="custom-checkbox" data-row="${item.row}">
+                        </div>
+                        <div class="content">
+                            <div class="date">${new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                            <p class="job-text">${item.job}</p>
+                        </div>
+                    `;
+                    journalList.appendChild(li);
+                    setTimeout(() => { li.classList.add('is-visible'); }, index * 100);
+                });
+            } else {
+                 journalList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Semua pekerjaan selesai! ✨</p>';
+            }
+             if (completedJournals.length > 0) {
+                completedJournals.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.innerHTML = `
+                        <p class="job-text" style="text-decoration: line-through; color: var(--secondary-color);">${item.job}</p>
+                        <div class="date" style="font-size: 0.8rem;">${new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    `;
+                    historyList.appendChild(li);
+                });
+            } else {
+                 historyList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Riwayat kosong.</p>';
+            }
+            document.querySelectorAll('#journal-list .custom-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', handleCheckboxChange);
+            });
+        }
+
+        async function handleCheckboxChange(event) {
+            const checkbox = event.target;
+            const row = checkbox.dataset.row;
+            const isDone = checkbox.checked;
+            checkbox.disabled = true;
+            checkbox.closest('.journal-item').style.opacity = '0';
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'updateCheck', row: parseInt(row), isDone: isDone })
+                });
+                await fetchJournalData();
+            } catch (error) {
+                console.error('Error updating checkbox:', error);
+                alert('Gagal mengupdate status. Memuat ulang...');
+                await fetchJournalData();
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const journalDate = document.getElementById('journal-date').value;
+            if (!journalDate) {
+                alert('Silakan pilih tanggal terlebih dahulu.');
+                return;
+            }
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
+            const inputs = activitiesGrid.querySelectorAll('.form-input');
+            const jobs = Array.from(inputs).map(input => input.value).filter(job => job.trim() !== "");
+            if (jobs.length === 0) {
+                alert('Silakan isi setidaknya satu aktivitas.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Tulis Jurnal';
+                return;
+            }
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'addJournal', date: journalDate, jobs: jobs })
+                });
+                journalForm.reset();
+                document.getElementById('journal-date').valueAsDate = new Date();
+                activitiesGrid.classList.remove('visible');
+                toggleActivitiesBtn.textContent = 'Buat Jurnal Besok';
+                await fetchJournalData();
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('Gagal menyimpan jurnal.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Tulis Jurnal';
+            }
+        }
     </script>
 </body>
 </html>
