@@ -5,42 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jurnal Julian</title>
     <style>
-        /* ... Semua CSS Anda sebelumnya tetap sama ... */
+        /* ... Root dan Reset tetap sama ... */
         :root {
             --primary-color: #3D52A0;
             --secondary-color: #6c757d;
             --background-color: #ffffff;
-            --card-background: rgba(255, 255, 255, 0.9);
+            --card-background: rgba(255, 255, 255, 0.85); /* Dibuat sedikit lebih solid */
             --text-color: #212529;
             --border-color: #dee2e6;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             --border-radius: 16px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Inter', sans-serif;
             color: var(--text-color);
             line-height: 1.6;
             overflow-x: hidden;
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
             background: linear-gradient(315deg, #e7eff9, #cfd8f7, #e1d4f6);
             background-size: 400% 400%;
             animation: animated-gradient 15s ease infinite;
+            /* DIUBAH: Padding atas untuk memberi ruang bagi header tetap */
+            padding: 120px 2rem 2rem 2rem;
         }
+
+        /* ... Keyframes tetap sama ... */
         @keyframes animated-gradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(-100%); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .container { width: 100%; max-width: 800px; }
-        header { text-align: center; margin-bottom: 2.5rem; animation: slideDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-        header h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -1.5px; }
+        
+        .container { 
+            width: 100%; 
+            max-width: 800px; 
+            /* DIUBAH: Hapus display flex dan justify-content dari body, pindah ke container jika perlu */
+        }
+
+        /* ============================================= */
+        /* PERUBAHAN UTAMA: CSS UNTUK HEADER TETAP */
+        /* ============================================= */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: var(--card-background);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            /* Hapus margin-bottom dan text-align */
+        }
+
+        header h1 {
+            font-size: 1.8rem; /* Sedikit lebih kecil agar pas */
+            letter-spacing: -1px;
+            /* Hapus font-weight karena sudah diwarisi */
+        }
+        
+        .header-actions {
+            margin-bottom: 0; /* Hapus margin default */
+        }
+        /* ============================================= */
+        /* AKHIR PERUBAHAN UTAMA */
+        /* ============================================= */
+
+        /* ... Sisa CSS lainnya tetap sama ... */
         #loader { text-align: center; padding: 2rem; font-size: 1.2rem; color: var(--secondary-color); }
         #journal-list { list-style: none; margin-bottom: 2rem; }
         .journal-item {
@@ -141,22 +181,8 @@
         .form-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(61, 82, 160, 0.25); }
         .submit-container { text-align: center; margin-top: 1.5rem; }
 
-        /* ============================================= */
-        /* BARU: CSS UNTUK TOMBOL RIWAYAT DAN POPUP MODAL */
-        /* ============================================= */
-        .header-actions {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-
-        .btn.btn-secondary {
-            background-color: #6c757d;
-        }
-
-        .btn.btn-secondary:hover {
-            background-color: #5a6268;
-        }
+        .btn.btn-secondary { background-color: #6c757d; }
+        .btn.btn-secondary:hover { background-color: #5a6268; }
         
         .modal-overlay {
             position: fixed;
@@ -173,12 +199,7 @@
             visibility: hidden;
             transition: opacity 0.3s ease;
         }
-
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-content {
             background: white;
             padding: 2rem;
@@ -191,16 +212,8 @@
             transition: transform 0.3s ease;
             position: relative;
         }
-        
-        .modal-overlay.visible .modal-content {
-            transform: scale(1);
-        }
-        
-        .modal-content h2 {
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-content h2 { margin-bottom: 1.5rem; text-align: center; }
         .modal-close-btn {
             position: absolute;
             top: 1rem;
@@ -211,21 +224,19 @@
             cursor: pointer;
             color: var(--secondary-color);
         }
-        
-        #history-list {
-            list-style: none;
-        }
-        
-        .history-item {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
+        #history-list { list-style: none; }
+        .history-item { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+        .history-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Jurnal Julian</h1>
+        <div class="header-actions">
+            <button type="button" id="history-btn" class="btn btn-secondary">Riwayat Jurnal</button>
+        </div>
+    </header>
+
     <div id="history-modal" class="modal-overlay">
         <div class="modal-content">
             <button id="modal-close-btn" class="modal-close-btn">&times;</button>
@@ -233,20 +244,14 @@
             <ul id="history-list"></ul>
         </div>
     </div>
-
+    
     <div class="container">
-        <header>
-            <h1>Jurnal Julian</h1>
-            <div class="header-actions">
-                <button type="button" id="history-btn" class="btn btn-secondary">Riwayat Jurnal</button>
-            </div>
-        </header>
         <main>
             <div id="loader">Memuat jurnal...</div>
             <ul id="journal-list"></ul>
             <div id="journal-form-container">
                 <form id="journal-form">
-                    <h3>Apa yang kamu kerjakan hari ini?</h3>
+                    <h3>Apa yang kamu kerjakan besok?</h3>
                     <div style="margin-bottom: 1.5rem;">
                         <label for="journal-date" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tanggal Jurnal:</label>
                         <input type="date" id="journal-date" class="form-input" required>
@@ -255,16 +260,16 @@
                          <button type="button" id="toggle-activities-btn" class="btn">Buat Jurnal Besok</button>
                     </div>
                     <div class="input-grid" id="activities-grid">
-                        <input type="text" class="form-input" placeholder="Aktivitas 10...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 9...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 8...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 7...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 6...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 5...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 4...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 3...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 2...">
-                        <input type="text" class="form-input" placeholder="Aktivitas 1...">
+                        <input type="text" class="form-input" placeholder="Aktivitas 1">
+                        <input type="text" class="form-input" placeholder="Aktivitas 2">
+                        <input type="text" class="form-input" placeholder="Aktivitas 3">
+                        <input type="text" class="form-input" placeholder="Aktivitas 4">
+                        <input type="text" class="form-input" placeholder="Aktivitas 5">
+                        <input type="text" class="form-input" placeholder="Aktivitas 6">
+                        <input type="text" class="form-input" placeholder="Aktivitas 7">
+                        <input type="text" class="form-input" placeholder="Aktivitas 8">
+                        <input type="text" class="form-input" placeholder="Aktivitas 9">
+                        <input type="text" class="form-input" placeholder="Aktivitas 10">
                     </div>
                     <div class="submit-container">
                         <button type="submit" id="submit-btn" class="btn">Tulis Jurnal</button>
@@ -275,24 +280,18 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "MASUKKAN_URL_WEB_APP_ANDA_DISINI";
-
+        // Seluruh JavaScript Anda tidak perlu diubah, tetap sama
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgHYMW7xI1xePk53KBV3a6WkIjGSryhpo7Sg8Fdwycc9olPyNWTV7e0cs4FNHGxFwUzg/exec";
         const loader = document.getElementById('loader');
         const journalList = document.getElementById('journal-list');
         const journalForm = document.getElementById('journal-form');
         const submitBtn = document.getElementById('submit-btn');
         const toggleActivitiesBtn = document.getElementById('toggle-activities-btn');
         const activitiesGrid = document.getElementById('activities-grid');
-
-        // BARU: Deklarasi variabel untuk elemen riwayat
         const historyBtn = document.getElementById('history-btn');
         const historyModal = document.getElementById('history-modal');
         const modalCloseBtn = document.getElementById('modal-close-btn');
         const historyList = document.getElementById('history-list');
-
-        // =======================================================================
-        // KODE JAVASCRIPT LENGKAP ADA DI BAWAH INI UNTUK MENGGANTIKAN SEMUA FUNGSI LAMA
-        // =======================================================================
         
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('journal-date').valueAsDate = new Date();
@@ -309,7 +308,6 @@
             }
         });
 
-        // BARU: Event listener untuk membuka dan menutup popup riwayat
         historyBtn.addEventListener('click', () => {
             historyModal.classList.add('visible');
         });
@@ -330,29 +328,23 @@
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const result = await response.json();
                 loader.style.display = 'none';
-                displayJournals(result.data); // Panggil fungsi yang sudah diubah
+                displayJournals(result.data);
             } catch (error) {
                 loader.textContent = 'Gagal memuat data. Coba refresh halaman.';
                 console.error('Error fetching data:', error);
             }
         }
 
-        // DIUBAH TOTAL: Fungsi ini sekarang memisahkan data aktif dan selesai
         function displayJournals(journals) {
             journalList.innerHTML = '';
             historyList.innerHTML = '';
-
             if (!journals || journals.length === 0) {
                 journalList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Belum ada jurnal.</p>';
                 historyList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Riwayat kosong.</p>';
                 return;
             }
-
-            // Pisahkan jurnal yang aktif dan yang sudah selesai
             const activeJournals = journals.filter(item => !item.done);
             const completedJournals = journals.filter(item => item.done);
-
-            // Tampilkan jurnal aktif di halaman utama
             if (activeJournals.length > 0) {
                 activeJournals.forEach((item, index) => {
                     const li = document.createElement('li');
@@ -372,8 +364,6 @@
             } else {
                  journalList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Semua pekerjaan selesai! ✨</p>';
             }
-
-            // Tampilkan jurnal yang sudah selesai di popup riwayat
              if (completedJournals.length > 0) {
                 completedJournals.forEach(item => {
                     const li = document.createElement('li');
@@ -387,23 +377,17 @@
             } else {
                  historyList.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Riwayat kosong.</p>';
             }
-
-            // Tambahkan event listener HANYA untuk checkbox di daftar aktif
             document.querySelectorAll('#journal-list .custom-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', handleCheckboxChange);
             });
         }
 
-        // DIUBAH: Fungsi ini sekarang me-refresh semua data setelah update
         async function handleCheckboxChange(event) {
             const checkbox = event.target;
             const row = checkbox.dataset.row;
             const isDone = checkbox.checked;
-            
             checkbox.disabled = true;
-            // Optimistic UI update: hide the item immediately
             checkbox.closest('.journal-item').style.opacity = '0';
-
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -411,14 +395,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'updateCheck', row: parseInt(row), isDone: isDone })
                 });
-                
-                // Setelah berhasil, panggil ulang data untuk me-refresh kedua list
                 await fetchJournalData();
-
             } catch (error) {
                 console.error('Error updating checkbox:', error);
                 alert('Gagal mengupdate status. Memuat ulang...');
-                // Rollback if failed
                 await fetchJournalData();
             }
         }
