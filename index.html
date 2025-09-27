@@ -144,8 +144,10 @@
             transition: max-height 0.7s ease, opacity 0.5s ease, margin-top 0.7s ease;
         }
         #activities-grid.visible {
-            max-height: 1200px; /* Ditambah agar muat lebih banyak */
+            max-height: 60vh; /* Batasi tinggi maksimal 60% dari tinggi layar */
             opacity: 1;
+            overflow-y: auto; /* Tambahkan scrollbar vertikal jika perlu */
+            padding-right: 1rem; /* Beri ruang untuk scrollbar */
         }
         .form-input {
             width: 100%;
@@ -172,9 +174,11 @@
             margin-top: 0;
         }
         #defaults-container.visible {
-            max-height: 1200px; /* Ditambah agar muat lebih banyak */
+            max-height: 60vh; /* Batasi tinggi maksimal 60% dari tinggi layar */
             opacity: 1;
             margin-top: 1.5rem;
+            overflow-y: auto; /* Tambahkan scrollbar vertikal jika perlu */
+            padding-right: 1rem; /* Beri ruang untuk scrollbar */
         }
         .modal-overlay {
             position: fixed;
