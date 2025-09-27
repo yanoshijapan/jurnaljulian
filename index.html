@@ -469,14 +469,17 @@
             }
             submitBtn.disabled = true;
             submitBtn.textContent = 'Menyimpan...';
+        
             const inputs = activitiesGrid.querySelectorAll('.form-input');
             const jobs = Array.from(inputs).map(input => input.value).filter(job => job.trim() !== "");
+            
             if (jobs.length === 0) {
                 alert('Silakan isi setidaknya satu aktivitas.');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Tulis Jurnal';
                 return;
             }
+        
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -484,11 +487,27 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'addJournal', date: journalDate, jobs: jobs })
                 });
-                journalForm.reset();
+                
+                // =======================================================================
+                // PERBAIKAN UTAMA ADA DI SINI
+                // =======================================================================
+                // 1. Hapus teks HANYA dari kolom aktivitas utama, bukan dari kolom default
+                inputs.forEach(input => input.value = '');
+                
+                // 2. Panggil kembali fungsi loadDefaults untuk mengisi ulang kolom utama dengan template
+                loadDefaults(); 
+                // =======================================================================
+        
+                // Reset tanggal ke hari ini
                 document.getElementById('journal-date').valueAsDate = new Date();
+                
+                // Sembunyikan lagi grid aktivitas setelah submit
                 activitiesGrid.classList.remove('visible');
                 toggleActivitiesBtn.textContent = 'Buat Jurnal Besok';
+                
+                // Muat ulang daftar jurnal dari spreadsheet
                 await fetchJournalData();
+        
             } catch (error) {
                 console.error('Error submitting form:', error);
                 alert('Gagal menyimpan jurnal.');
