@@ -432,23 +432,6 @@
         let allJournals = [];
 
         // Event Listeners Utama
-        menuToggleBtn.addEventListener('click', (event) => {
-            dropdownMenu.classList.toggle('visible');
-            event.stopPropagation(); // Mencegah klik menyebar ke document
-        });
-    
-        // Menutup menu jika mengklik di luar menu
-        document.addEventListener('click', (event) => {
-            if (dropdownMenu.classList.contains('visible') && !dropdownMenu.contains(event.target) && event.target !== menuToggleBtn) {
-                dropdownMenu.classList.remove('visible');
-            }
-        });
-    
-        // Event listener untuk tombol Riwayat Jurnal (di dalam menu)
-        historyBtn.addEventListener('click', () => {
-            historyModal.classList.add('visible');
-            dropdownMenu.classList.remove('visible'); // Tutup menu setelah klik
-        });
         
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('journal-date').valueAsDate = new Date();
@@ -472,6 +455,23 @@
             historySearchInput.value = '';
             historyDateFilter.value = '';
             renderHistoryList();
+        });
+        menuToggleBtn.addEventListener('click', (event) => {
+            dropdownMenu.classList.toggle('visible');
+            event.stopPropagation(); // Mencegah klik menyebar ke document
+        });
+    
+        // Menutup menu jika mengklik di luar menu
+        document.addEventListener('click', (event) => {
+            if (dropdownMenu.classList.contains('visible') && !dropdownMenu.contains(event.target) && event.target !== menuToggleBtn) {
+                dropdownMenu.classList.remove('visible');
+            }
+        });
+    
+        // Event listener untuk tombol Riwayat Jurnal (di dalam menu)
+        historyBtn.addEventListener('click', () => {
+            historyModal.classList.add('visible');
+            dropdownMenu.classList.remove('visible'); // Tutup menu setelah klik
         });
         toggleDefaultsBtn.addEventListener('click', () => defaultsContainer.classList.toggle('visible'));
         saveDefaultsBtn.addEventListener('click', () => {
