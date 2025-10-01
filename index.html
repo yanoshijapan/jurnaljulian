@@ -245,14 +245,78 @@
         }
         .history-item { padding: 1rem; border-bottom: 1px solid var(--border-color); }
         .history-item:last-child { border-bottom: none; }
+        /* CSS Baru untuk Hamburger Menu */
+        .menu-toggle {
+            font-size: 1.5rem;
+            padding: 0.5rem 1rem;
+            line-height: 1;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%; /* Di bawah header */
+            right: 2rem;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 998; /* Di bawah header tetap di atas konten */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+
+        .dropdown-menu.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu .menu-item {
+            width: 100%;
+            text-align: left;
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+            text-decoration: none; /* Untuk elemen <a> */
+            display: block; /* Untuk elemen <a> */
+            box-shadow: none;
+            transform: none;
+        }
+        .dropdown-menu .menu-item:hover {
+             transform: none;
+             box-shadow: none;
+        }
+        
+        /* Tambahkan ini untuk memastikan tombol dropdown berada di samping judul */
+        header {
+            /* Pastikan posisi relative untuk dropdown absolute */
+            position: fixed; 
+        }
+
+        /* Perbaikan jika tombol Riwayat Jurnal sebelumnya berada di .header-actions */
+        .header-actions {
+             /* Pastikan header-actions tidak memiliki margin-bottom yang mengganggu tata letak */
+             margin-bottom: 0; 
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Jurnal Julian</h1>
         <div class="header-actions">
-            <button type="button" id="history-btn" class="btn btn-secondary">Riwayat Jurnal</button>
+            <button type="button" id="menu-toggle-btn" class="btn btn-secondary menu-toggle">
+                &#9776; </button>
         </div>
+
+        <nav id="dropdown-menu" class="dropdown-menu">
+            <button type="button" id="history-btn" class="btn btn-secondary menu-item">Riwayat Jurnal</button>
+            <a href="https://docs.google.com/spreadsheets/d/1WIZCfAj2gSdOKHH2SQzeqBt7TWVLcooFGpFo56u1e4I/edit#gid=0" target="_blank" class="btn btn-secondary menu-item">Lihat Spreadsheet</a>
+        </nav>
     </header>
 
     <div id="history-modal" class="modal-overlay">
@@ -347,6 +411,8 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgHYMW7xI1xePk53KBV3a6WkIjGSryhpo7Sg8Fdwycc9olPyNWTV7e0cs4FNHGxFwUzg/exec";
 
         // Variabel Global
+        const menuToggleBtn = document.getElementById('menu-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
         const loader = document.getElementById('loader');
         const journalList = document.getElementById('journal-list');
         const journalForm = document.getElementById('journal-form');
@@ -366,6 +432,24 @@
         let allJournals = [];
 
         // Event Listeners Utama
+        menuToggleBtn.addEventListener('click', (event) => {
+            dropdownMenu.classList.toggle('visible');
+            event.stopPropagation(); // Mencegah klik menyebar ke document
+        });
+    
+        // Menutup menu jika mengklik di luar menu
+        document.addEventListener('click', (event) => {
+            if (dropdownMenu.classList.contains('visible') && !dropdownMenu.contains(event.target) && event.target !== menuToggleBtn) {
+                dropdownMenu.classList.remove('visible');
+            }
+        });
+    
+        // Event listener untuk tombol Riwayat Jurnal (di dalam menu)
+        historyBtn.addEventListener('click', () => {
+            historyModal.classList.add('visible');
+            dropdownMenu.classList.remove('visible'); // Tutup menu setelah klik
+        });
+        
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('journal-date').valueAsDate = new Date();
             loadDefaults();
@@ -397,7 +481,7 @@
             alert('Default jurnal berhasil disimpan!');
             defaultsContainer.classList.remove('visible');
         });
-
+        
         // Fungsi-Fungsi Aplikasi
         function loadDefaults() {
             const savedDefaults = localStorage.getItem('defaultJournal');
